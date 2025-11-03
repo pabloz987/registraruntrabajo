@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-// import Image from "next/image"; // <-- 1. IMPORTADO Image (Eliminado para usar <img> normal)
 import { mesesNombres, diasSemanaCortos } from "./constantes";
 import Horario from "./horarios";
 import { DisponibilidadAPIService, InfoProveedor } from "../services/disponibilidad-api.service";
@@ -20,6 +19,12 @@ const Calendario: React.FC = () => {
     descripcion: ""
   });
   const [cargandoInfo, setCargandoInfo] = useState(true);
+
+  // --- INICIO: Estados para el Modal de WhatsApp ---
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [mensajeModal, setMensajeModal] = useState("");
+  const numeroWhatsapp = "59177999766";
+  // --- FIN: Estados para el Modal de WhatsApp ---
 
   // Cargar info del proveedor al montar el componente
   useEffect(() => {
@@ -42,6 +47,31 @@ const Calendario: React.FC = () => {
 
     cargarInfoProveedor();
   }, []);
+
+  // --- INICIO: Funciones del Modal de WhatsApp ---
+  const abrirModalWhatsApp = () => {
+    // 1. Generar el mensaje pre-cargado
+    let mensajeTexto = "Hola, estoy interesado en sus servicios.";
+    if (!cargandoInfo && infoProveedor.nombre && infoProveedor.nombre !== "Cargando...") {
+      mensajeTexto = `Hola ${infoProveedor.nombre}, estoy interesado en sus servicios.`;
+    }
+    // 2. Setearlo en el estado del modal
+    setMensajeModal(mensajeTexto);
+    // 3. Mostrar el modal
+    setMostrarModal(true);
+  };
+
+  const cerrarModal = () => {
+    setMostrarModal(false);
+  };
+
+  const handleContactarModal = () => {
+    // Construye la URL con el mensaje (potencialmente editado)
+    const whatsappUrl = `https://wa.me/${numeroWhatsapp}?text=${encodeURIComponent(mensajeModal)}`;
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    cerrarModal();
+  };
+  // --- FIN: Funciones del Modal de WhatsApp ---
 
   const getDaysInMonth = (month: number, year: number): number =>
     new Date(year, month + 1, 0).getDate();
@@ -148,16 +178,7 @@ const Calendario: React.FC = () => {
     );
   }
 
-  // --- Lógica de WhatsApp ---
-  const numeroWhatsapp = "59177999766";
-  let mensajeTexto = "Hola, estoy interesado en sus servicios.";
-
-  if (!cargandoInfo && infoProveedor.nombre && infoProveedor.nombre !== "Cargando...") {
-    mensajeTexto = `Hola ${infoProveedor.nombre}, estoy interesado en sus servicios.`;
-  }
-  
-  const whatsappUrl = `https://wa.me/${numeroWhatsapp}?text=${encodeURIComponent(mensajeTexto)}`;
-  // --- Fin Lógica de WhatsApp ---
+  // (La lógica de whatsappUrl se movió a las funciones del modal)
 
   return (
     <div className="min-h-screen w-full bg-white py-4 px-4 sm:py-8 sm:px-12">
@@ -179,27 +200,30 @@ const Calendario: React.FC = () => {
                 <h2 className="text-lg font-bold text-gray-800">
                   {cargandoInfo ? "Cargando..." : infoProveedor.profesion}
                 </h2>
-                <p className="text-gray-600 text-base">
+                <p className="text-gray-600 text-base"> {/* <- Estilo de "Juan Perez" */}
                   {cargandoInfo ? "Cargando..." : infoProveedor.nombre}
                 </p>
               </div>
             </div>
             
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            {/* --- INICIO: Botón de WhatsApp MODIFICADO --- */}
+            {/* Se cambió de <a> a <button> y se añadió onClick */}
+            <button
+              onClick={abrirModalWhatsApp}
               className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-100 transition-colors"
               aria-label="Contactar por WhatsApp"
             >
-              {/* --- 2. REEMPLAZADO <Image> por <img> --- */}
               <img
                 src="/wpp.png"
                 alt="Contactar por WhatsApp"
-                className="w-8 h-8" // Usamos Tailwind para el tamaño
+                className="w-14 h-14" // <-- TAMAÑO ÍCONO MODIFICADO
               />
-              <span className="text-xs font-medium text-gray-700 mt-1">contactar</span>
-            </a>
+              {/* --- TAMAÑO Y LETRA MODIFICADOS --- */}
+              <span className="text-base text-gray-600 mt-2">
+                contactar
+              </span>
+            </button>
+            {/* --- FIN: Botón de WhatsApp MODIFICADO --- */}
             
           </div>
         </div>
@@ -255,9 +279,38 @@ const Calendario: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* --- INICIO: MODAL DE WHATSAPP --- */}
+      {mostrarModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Confirmar Mensaje</h3>
+            <p className="text-sm text-gray-600 mb-2">Edita tu mensaje antes de enviarlo por WhatsApp:</p>
+            <textarea
+              value={mensajeModal}
+              onChange={(e) => setMensajeModal(e.target.value)}
+              className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+            />
+            <div className="flex justify-end gap-4 mt-6">
+              <button
+                onClick={cerrarModal}
+                className="px-6 py-2 rounded-lg text-base font-bold transition-all bg-gray-200 text-gray-800 hover:bg-gray-300"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleContactarModal}
+                className="px-6 py-2 rounded-lg text-base font-bold transition-all shadow-lg bg-blue-600 text-white hover:bg-blue-700"
+              >
+                Contactar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* --- FIN: MODAL DE WHATSAPP --- */}
     </div>
   );
 };
 
 export default Calendario;
-
