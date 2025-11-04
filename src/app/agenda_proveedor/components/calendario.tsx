@@ -33,7 +33,8 @@ const Calendario: React.FC = () => {
         setCargandoInfo(true);
         const info = await DisponibilidadAPIService.obtenerInfoProveedor("proveedor_123");
         setInfoProveedor(info);
-      } catch (error) {
+      } catch (error)
+{
         console.error("Error al cargar info del proveedor:", error);
         setInfoProveedor({
           nombre: "Juan Pérez",
@@ -178,8 +179,6 @@ const Calendario: React.FC = () => {
     );
   }
 
-  // (La lógica de whatsappUrl se movió a las funciones del modal)
-
   return (
     <div className="min-h-screen w-full bg-white py-4 px-4 sm:py-8 sm:px-12">
       <div className="w-full max-w-7xl mx-auto">
@@ -206,8 +205,6 @@ const Calendario: React.FC = () => {
               </div>
             </div>
             
-            {/* --- INICIO: Botón de WhatsApp MODIFICADO --- */}
-            {/* Se cambió de <a> a <button> y se añadió onClick */}
             <button
               onClick={abrirModalWhatsApp}
               className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -216,14 +213,12 @@ const Calendario: React.FC = () => {
               <img
                 src="/wpp.png"
                 alt="Contactar por WhatsApp"
-                className="w-14 h-14" // <-- TAMAÑO ÍCONO MODIFICADO
+                className="w-14 h-14"
               />
-              {/* --- TAMAÑO Y LETRA MODIFICADOS --- */}
               <span className="text-base text-gray-600 mt-2">
                 contactar
               </span>
             </button>
-            {/* --- FIN: Botón de WhatsApp MODIFICADO --- */}
             
           </div>
         </div>
@@ -289,7 +284,7 @@ const Calendario: React.FC = () => {
             <textarea
               value={mensajeModal}
               onChange={(e) => setMensajeModal(e.target.value)}
-              className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+              className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none text-gray-900" // <-- COLOR AÑADIDO AQUÍ
             />
             <div className="flex justify-end gap-4 mt-6">
               <button
