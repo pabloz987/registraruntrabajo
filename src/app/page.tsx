@@ -1,3 +1,5 @@
+// app/page.tsx (o el archivo equivalente para tu componente Home)
+
 import Link from "next/link";
 
 export default function Home() {
@@ -35,9 +37,16 @@ export default function Home() {
             href="/epic_VisualizadorDeTrabajosAgendadosVistaCliente"
             className="bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 transition-colors text-center"
           >
-           Mis Trabajos (Vista-Cliente)
+            Mis Trabajos (Vista-Cliente)
           </Link>
 
+          {/* ⭐️ Botón para acceder a la página de Calificaciones del proveedor */}
+          <Link
+            href="/vendedor_ratings"
+            className="bg-blue-700 text-white py-3 px-6 rounded-lg hover:bg-purple-600 transition-colors text-center font-semibold"
+          >
+            Calificaciones del proveedor
+          </Link>
         </div>
       </main>
     </div>
