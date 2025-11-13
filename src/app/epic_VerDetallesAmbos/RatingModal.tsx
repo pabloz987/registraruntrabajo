@@ -4,12 +4,13 @@
 import { useState } from 'react';
 import { StarIcon } from './StarIcon';
 
-// Props que el modal aceptará (MODIFICADAS)
+const MAX_COMMENT_LENGTH = 500;
+
 interface RatingModalProps {
   isOpen: boolean;
-  onCloseClick: () => void; // Para el botón "Atrás"
-  onOmitClick: () => void;  // Para el botón "Omitir"
-  onSubmitClick: (rating: number, comment: string) => Promise<void>; // Para "Enviar"
+  onCloseClick: () => void;
+  onOmitClick: () => void;
+  onSubmitClick: (rating: number, comment: string) => Promise<void>;
 }
 
 export function RatingModal({
@@ -18,11 +19,11 @@ export function RatingModal({
   onOmitClick,
   onSubmitClick,
 }: RatingModalProps) {
-  // Estados internos del modal
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [commentError, setCommentError] = useState('');
 
   if (!isOpen) {
     return null;
@@ -33,47 +34,51 @@ export function RatingModal({
       alert('Por favor, selecciona una calificación.');
       return;
     }
+    
+    if (comment.length > MAX_COMMENT_LENGTH) {
+      setCommentError(`El máximo de caracteres es ${MAX_COMMENT_LENGTH}.`);
+      return;
+    }
 
+    setCommentError('');
     setIsSubmitting(true);
+    
     try {
-      // Llama a la función prop que se encarga de la lógica de envío Y redirección
       await onSubmitClick(rating, comment);
-      
-      // Resetea los estados internos
       setRating(0);
       setHoverRating(0);
       setComment('');
-
     } catch (error) {
-      // El error (ej. 'Error al enviar') se maneja en la página padre
-      // El padre decide si cerrar el modal o mostrar un error
       console.error('Error reportado al modal:', error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Función para resetear estados al cerrar (Atrás) u Omitir
   const handleResetAndClose = (closeFn: () => void) => {
     setRating(0);
     setHoverRating(0);
     setComment('');
-    closeFn(); // Llama a la función prop correspondiente
+    setCommentError('');
+    closeFn();
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+      {/* 1. Modal adaptativo: cambiado p-6 a p-4 sm:p-6 y ajustado mx-4 */}
+      <div className="bg-white rounded-lg shadow-xl p-4 sm:p-6 w-full max-w-md mx-4">
         
-        {/* --- Título, Estrellas y Comentario (Sin cambios) --- */}
         <h2 className="text-xl font-bold text-blue-700 text-center mb-2">
           ¡GRACIAS POR USAR LA APP!
         </h2>
-        <p className="text-gray-700 text-center mb-4">
+        
+        {/* 5. Alineación izquierda y 2. Color de letra */}
+        <p className="text-gray-900 mb-4">
           ¿Como fue tu experiencia con el proveedor?
         </p>
 
-        <div className="flex justify-center gap-2 mb-4">
+        {/* 5. Alineación izquierda (estrellas) */}
+        <div className="flex justify-start gap-2 mb-4">
           {[1, 2, 3, 4, 5].map((starValue) => {
             const isFilled = starValue <= (hoverRating || rating);
             return (
@@ -91,43 +96,64 @@ export function RatingModal({
           })}
         </div>
 
-        <label htmlFor="comment" className="text-gray-600 text-sm mb-2 block">
+        {/* 2. Color de letra */}
+        <label htmlFor="comment" className="text-gray-900 text-sm mb-2 block">
           Cuéntanos más sobre tu experiencia (Opcional)
         </label>
         <textarea
           id="comment"
           value={comment}
-          onChange={(e) => setComment(e.target.value)}
+          onChange={(e) => {
+            setComment(e.target.value);
+            if (e.target.value.length <= MAX_COMMENT_LENGTH && commentError) {
+              setCommentError('');
+            }
+          }}
           placeholder="Escribe tu comentario aquí..."
           className="w-full h-24 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           disabled={isSubmitting}
+          aria-describedby="comment-helper"
         />
-        {/* --- Fin de Título, Estrellas y Comentario --- */}
+        
+        <div id="comment-helper" className="flex justify-between items-center mt-1 text-sm">
+          <span className="text-red-600 font-medium">
+            {commentError}
+          </span>
+          <span className={`
+            ${comment.length > MAX_COMMENT_LENGTH ? 'text-red-600 font-bold' : 'text-gray-500'}
+          `}>
+            {comment.length} / {MAX_COMMENT_LENGTH}
+          </span>
+        </div>
 
-
-        {/* Botones de acción (MODIFICADOS) */}
-        <div className="flex justify-between mt-6">
+        {/* 1. Contenedor de botones adaptativo */}
+        <div className="flex flex-col sm:flex-row sm:justify-between gap-3 mt-6">
+          
+          {/* 3. Botón "Atrás" azul */}
           <button
             type="button"
-            onClick={() => handleResetAndClose(onCloseClick)} // Llama a onCloseClick
+            onClick={() => handleResetAndClose(onCloseClick)}
             disabled={isSubmitting}
-            className="px-5 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 disabled:opacity-50"
+            className="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 w-full sm:w-auto"
           >
             Atrás
           </button>
+          
+          {/* 4. Botón "Omitir" en negrita */}
           <button
             type="button"
-            onClick={() => handleResetAndClose(onOmitClick)} // Llama a onOmitClick
+            onClick={() => handleResetAndClose(onOmitClick)}
             disabled={isSubmitting}
-            className="px-5 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 disabled:opacity-50"
+            className="px-5 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 disabled:opacity-50 font-bold w-full sm:w-auto"
           >
             Omitir
           </button>
+          
           <button
             type="button"
-            onClick={handleSubmit} // Llama al handleSubmit interno
+            onClick={handleSubmit}
             disabled={rating === 0 || isSubmitting}
-            className="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed"
+            className="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed w-full sm:w-auto"
           >
             {isSubmitting ? 'Enviando...' : 'Enviar'}
           </button>

@@ -2,36 +2,26 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'; // useRouter ya no es estrictamente necesario para esta lógica, pero lo dejamos
 import { RatingModal } from './RatingModal';
 
 export default function VerDetallesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const router = useRouter();
   
-  // Destino de la redirección
-  const redirectPath = '/epic_VisualizadorDeTrabajosAgendadosVistaCliente';
+  // Eliminamos 'router' y 'redirectPath' si ya no se usan para redireccionar
+  // const router = useRouter(); 
+  // const redirectPath = '/epic_VisualizadorDeTrabajosAgendadosVistaCliente';
 
   // --- LÓGICA PARA LOS BOTONES DEL MODAL ---
 
-  /**
-   * 1. Botón "Atrás": Solo cierra el modal.
-   */
   const handleAtrasClick = () => {
     setIsModalOpen(false);
   };
 
-  /**
-   * 2. Botón "Omitir": Cierra el modal y redirige.
-   */
   const handleOmitirClick = () => {
     setIsModalOpen(false);
-    router.push(redirectPath);
   };
 
-  /**
-   * 3. Botón "Enviar": Envía datos al backend, luego cierra y redirige.
-   */
   const handleEnviarClick = async (rating: number, comment: string) => {
     console.log('Enviando al backend:', { rating, comment });
 
@@ -55,27 +45,27 @@ export default function VerDetallesPage() {
 
       const result = await response.json();
       console.log('Respuesta del backend:', result);
-      alert('¡Gracias por tu calificación!');
+
+      alert('Calificación enviada con éxito'); 
 
     } catch (error) {
       console.error('Error en handleEnviarClick:', error);
       alert('No se pudo enviar tu calificación. Inténtalo de nuevo.');
-      
-      // IMPORTANTE: Lanzamos el error para que el modal
-      // detenga el 'isSubmitting' pero NO cierre ni redirija.
       throw error; 
     }
     */
     // --- FIN: LÓGICA DE BACKEND ---
 
-    // Simulación de una llamada de red (borrar en producción)
+    // Simulación
     await new Promise((resolve) => setTimeout(resolve, 1000));
     console.log('Calificación enviada (simulación)');
 
-    // --- ÉXITO: Cerrar y redirigir ---
-    // Si la lógica del backend fue exitosa (no hubo 'throw error'):
+    // Mensaje de confirmación
+    alert('Calificación enviada con éxito');
+
+    // --- ÉXITO: Solo cerramos el modal ---
     setIsModalOpen(false);
-    router.push(redirectPath);
+    // router.push(redirectPath); // <-- LÍNEA ELIMINADA
   };
 
   // --- RENDERIZADO DE LA PÁGINA ---
@@ -83,28 +73,38 @@ export default function VerDetallesPage() {
     <main className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-24">
       <h1 className="text-3xl font-bold mb-8">Detalles del Trabajo</h1>
 
-      {/* ... Contenido de la página ... */}
       <div className="bg-white p-8 rounded-lg shadow-md mb-8">
         <p>Contenido de los detalles del trabajo...</p>
       </div>
 
       <div className="flex gap-4">
+        {/* Si quieres que este botón "Volver" regrese a la lista, 
+          necesitarás 'useRouter' de nuevo. 
+          Lo re-activaré por si acaso.
+        */}
         <button
-          onClick={() => router.back()} // Botón "Volver" de la página
+          onClick={() => {
+             // Si descomentaste 'useRouter' arriba, esto funcionará
+             // router.back(); 
+             // O puedes forzarlo a ir a la lista:
+             // router.push('/epic_VisualizadorDeTrabajosAgendadosVistaCliente');
+             
+             // Por ahora, solo usamos el historial del navegador:
+             window.history.back();
+          }}
           className="px-6 py-2 bg-gray-500 text-white rounded-lg font-semibold shadow hover:bg-gray-600 transition-colors"
         >
           Volver
         </button>
 
         <button
-          onClick={() => setIsModalOpen(true)} // Botón que abre el modal
+          onClick={() => setIsModalOpen(true)}
           className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold shadow hover:bg-blue-700 transition-colors"
         >
           Calificar Proveedor
         </button>
       </div>
 
-      {/* Pasamos las 3 funciones nuevas al modal */}
       <RatingModal
         isOpen={isModalOpen}
         onCloseClick={handleAtrasClick}
