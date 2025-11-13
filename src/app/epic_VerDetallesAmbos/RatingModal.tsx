@@ -65,19 +65,16 @@ export function RatingModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
-      {/* 1. Modal adaptativo: cambiado p-6 a p-4 sm:p-6 y ajustado mx-4 */}
       <div className="bg-white rounded-lg shadow-xl p-4 sm:p-6 w-full max-w-md mx-4">
         
         <h2 className="text-xl font-bold text-blue-700 text-center mb-2">
           ¡GRACIAS POR USAR LA APP!
         </h2>
         
-        {/* 5. Alineación izquierda y 2. Color de letra */}
         <p className="text-gray-900 mb-4">
           ¿Como fue tu experiencia con el proveedor?
         </p>
 
-        {/* 5. Alineación izquierda (estrellas) */}
         <div className="flex justify-start gap-2 mb-4">
           {[1, 2, 3, 4, 5].map((starValue) => {
             const isFilled = starValue <= (hoverRating || rating);
@@ -96,10 +93,11 @@ export function RatingModal({
           })}
         </div>
 
-        {/* 2. Color de letra */}
         <label htmlFor="comment" className="text-gray-900 text-sm mb-2 block">
           Cuéntanos más sobre tu experiencia (Opcional)
         </label>
+        
+        {/* --- AQUÍ ESTÁ EL CAMBIO --- */}
         <textarea
           id="comment"
           value={comment}
@@ -110,10 +108,11 @@ export function RatingModal({
             }
           }}
           placeholder="Escribe tu comentario aquí..."
-          className="w-full h-24 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full h-24 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" // <-- Clase añadida
           disabled={isSubmitting}
           aria-describedby="comment-helper"
         />
+        {/* --- FIN DEL CAMBIO --- */}
         
         <div id="comment-helper" className="flex justify-between items-center mt-1 text-sm">
           <span className="text-red-600 font-medium">
@@ -126,10 +125,7 @@ export function RatingModal({
           </span>
         </div>
 
-        {/* 1. Contenedor de botones adaptativo */}
         <div className="flex flex-col sm:flex-row sm:justify-between gap-3 mt-6">
-          
-          {/* 3. Botón "Atrás" azul */}
           <button
             type="button"
             onClick={() => handleResetAndClose(onCloseClick)}
@@ -139,7 +135,6 @@ export function RatingModal({
             Atrás
           </button>
           
-          {/* 4. Botón "Omitir" en negrita */}
           <button
             type="button"
             onClick={() => handleResetAndClose(onOmitClick)}
